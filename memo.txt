@@ -1,0 +1,76 @@
+Requirements
+1. Operations
+  add
+  subtract
+  multiply
+  divide
+
+2. UIs
+  Buttons
+    0 ~ 9
+    + - / % =
+    Clear
+  Display
+    Displays 9 digits of numbers for the input
+      e.g. 
+        999999999
+        9.99999999
+        -999999999
+        -9.99999999
+        if the output has more than 9 digits, then apply toExponential(0) to the output.
+
+
+3. Behavior
+  - Long decimals should be rounded.
+  - entering = before all the arguments ready, do:
+    Case 1
+    1. enter 2
+    2. enter =
+    -- return the 1st operand ---
+    Case 2
+    1. enter 2
+    2. enter +
+    3. enter =
+    --- return 2 + 2 which is 4 ---
+  - pressing clear should wipe out any existing data
+  - The program does not crush if a user tried to divide number by 2
+
+4. Extra features
+ - Support decimal calculation with adding . button.
+  
+
+
+Implementation hints
+  Calculation Algorithm
+  1. Create three variables
+    num1
+    operation
+    num2
+    
+    e.g.
+    3 + 5
+    num1 = 3
+    operation = +
+    num2 = 5
+
+  2. create function:
+    operate(operandL, operator, operandR)
+
+Recommended implementation process
+1. Create calculation logic
+  - Should not evaluate more than  single pair of numbers at a time
+    e.g. User is trying to calculate 12 + 7 - 1.
+    1. 1 is entered
+    2. 2 is entered
+    --- concatenate 1. and 2. to make 12 ---
+    3. + is entered
+    4. 7 is entered
+    --- calculate 12 + 7 at this point ---
+    5. - is entered
+    6. 1 is entered
+    --- calculate 19 - 1 at this point ---
+    7. = is entered
+    --- return the result of the calculation ---
+
+2. Build UIs
+3. Write JS to display numbers of the button clicked.
