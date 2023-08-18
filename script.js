@@ -54,12 +54,14 @@ function operate(operandL, operator, operandR) {
   }
 }
 
+/**
+ * Judges if given character is one of the operations.
+ * @param {Number} operandL
+ * @param {String} operator
+ * @param {Number} operandR
+ * @returns {Number}
+ */
 function isOperator(character) {
-  return (
-    character === '+' ||
-    character === '-' ||
-    character === '/' ||
-    character === '%' ||
-    character === '='
-  );
+  const OPERATORS = ['+', '-', '/', '%', '='];
+  return OPERATORS.indexOf(character) != -1;
 }
