@@ -74,3 +74,12 @@ Recommended implementation process
 
 2. Build UIs
 3. Write JS to display numbers of the button clicked.
+
+
+
+func) assign number to num1 or num2
+  IF "input" variable has one of the operators
+    IF "num1" is empty
+      Assign "previousValue" value to the "num1"
+    else
+      Assign "previousValue" value to the "num2"
