@@ -52,6 +52,12 @@ function operate(operandL, operator, operandR) {
   if (operator === '-') {
     return operandL - operandR;
   }
+  if (operator === '*') {
+    return operandL * operandR;
+  }
+  if (operator === '/') {
+    return operandL / operandR;
+  }
 }
 
 /**
@@ -62,6 +68,6 @@ function operate(operandL, operator, operandR) {
  * @returns {Number}
  */
 function isOperator(character) {
-  const OPERATORS = ['+', '-', '/', '%', '='];
+  const OPERATORS = ['+', '-', '/', '*', '='];
   return OPERATORS.indexOf(character) != -1;
 }
