@@ -11,17 +11,18 @@ while (true) {
   }
 
   if (isOperator(input) && num1 === undefined) {
-    num1 = previousInput;
+    num1 = parseInt(previousInput);
     operation = input;
     previousInput = '';
   } else if (isOperator(input) && num2 === undefined) {
-    num2 = previousInput;
+    num2 = parseInt(previousInput);
     previousInput = '';
   } else previousInput += input;
 
   if (num1 !== undefined && operation !== '' && num2 !== undefined) {
     num1 = operate(num1, operation, num2);
     num2 = undefined;
+    operation = input;
   }
 
   alert(`
@@ -39,14 +40,17 @@ while (true) {
 
 /**
  * Convert given string number into number and do calculation.
- * @param {String} operandL
+ * @param {Number} operandL
  * @param {String} operator
- * @param {String} operandR
- * @returns {String}
+ * @param {Number} operandR
+ * @returns {Number}
  */
 function operate(operandL, operator, operandR) {
   if (operator === '+') {
-    return `${+operandL + +operandR}`;
+    return operandL + operandR;
+  }
+  if (operator === '-') {
+    return operandL - operandR;
   }
 }
 
