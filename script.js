@@ -3,6 +3,7 @@ let previousInput = '';
 let num1;
 let operation = '';
 let num2;
+let negativeEntry = true;
 
 while (true) {
   const input = prompt();
@@ -79,7 +80,18 @@ function isOperator(character) {
  * @returns {Number}
  */
 function toNumber(string) {
-  return string.includes('.') ? parseFloat(string) : parseInt(string);
+  let value = string.includes('.') ? parseFloat(string) : parseInt(string);
+  return negateNumberIfRequired(value);
+}
+
+/**
+ * Create negative version of number.
+ * This handles negative number entry mode of the calculator
+ * @param {Number} num
+ * @returns {Number}
+ */
+function negateNumberIfRequired(num) {
+  return negativeEntry === true ? -num : num;
 }
 
 /**

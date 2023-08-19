@@ -10,6 +10,7 @@ Requirements
     0 ~ 9
     + - / % =
     Clear
+    +/-
   Display
     Displays 9 digits of numbers for the input
       e.g. 
