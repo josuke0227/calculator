@@ -94,6 +94,10 @@ function negateNumberIfRequired(num) {
   return negativeEntry === true ? -num : num;
 }
 
+/**
+ * Updates 'previousInput' variable after the validation is processed.
+ * @param {String} newInput
+ */
 function updatePreviousInput(newInput) {
   newInput = validateInput(newInput) === true ? newInput : '';
   previousInput += newInput;
@@ -102,14 +106,29 @@ function updatePreviousInput(newInput) {
 /**
  * Validates input to prevent unexpected result.
  * Prevents concatenating multiple '.'
+ * Prevents 'previousInput' to hold the length of the text more than 'MAX_DIGITS' characters long.
  * @param {String} string
  * @returns {String}
  */
 function validateInput(string) {
+  let result = true;
   if (string === '.' && previousInput.includes(string)) {
-    return false;
+    result = false;
   }
-  return true;
+  if (countDigits(previousInput) >= MAX_DIGITS) {
+    result = false;
+  }
+  return result;
+}
+
+/**
+ * Counts how many digits(0-9) does the argument have.
+ * e.g. "1234567890." -> 10
+ * @param {String} string
+ * @returns {Number}
+ */
+function countDigits(string) {
+  return string.replace('.', '').length;
 }
 
 /**
