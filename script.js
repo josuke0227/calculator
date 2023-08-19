@@ -1,4 +1,6 @@
 const MAX_DIGITS = 9;
+const MAX_VALUE = 999_999_999;
+const MIN_VALUE = -999_999_999;
 let previousInput = '';
 let num1;
 let operation = '';
@@ -35,7 +37,7 @@ while (true) {
   `);
 
   if (input === '=') {
-    alert(num1);
+    alert(toExponentialIfRequired(num1));
     break;
   }
 }
@@ -204,4 +206,13 @@ function getTotalDecimalDigitLength(a, b) {
  */
 function getDecimalDigitLength(num) {
   return num.toString().split('.')[1].length;
+}
+
+/**
+ * Used for displaying the result if it is bigger than the MAX_VALUE
+ * @param {Number} num
+ * @returns {String}
+ */
+function toExponentialIfRequired(num) {
+  return MAX_VALUE < num || MIN_VALUE > num ? num.toExponential(0) : num;
 }
