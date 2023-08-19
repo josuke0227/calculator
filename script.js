@@ -17,7 +17,7 @@ while (true) {
   } else if (isOperator(input) && num2 === undefined) {
     num2 = toNumber(previousInput);
     previousInput = '';
-  } else previousInput += input;
+  } else previousInput += validateInput(input);
 
   if (num1 !== undefined && operation !== '' && num2 !== undefined) {
     const result = operate(num1, operation, num2);
@@ -80,6 +80,19 @@ function isOperator(character) {
  */
 function toNumber(string) {
   return string.includes('.') ? parseFloat(string) : parseInt(string);
+}
+
+/**
+ * Validates input to prevent unexpected result.
+ * Prevents concatenating multiple '.'
+ * @param {String} inputString
+ * @returns {String}
+ */
+function validateInput(inputString) {
+  if (inputString === '.' && previousInput.includes(inputString)) {
+    return '';
+  }
+  return inputString;
 }
 
 /**
