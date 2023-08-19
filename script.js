@@ -1,4 +1,4 @@
-// when a character is given, concatenate the value with "previousInput".
+const MAX_DIGITS = 9;
 let previousInput = '';
 let num1;
 let operation = '';
@@ -18,7 +18,7 @@ while (true) {
   } else if (isOperator(input) && num2 === undefined) {
     num2 = toNumber(previousInput);
     previousInput = '';
-  } else previousInput += validateInput(input);
+  } else updatePreviousInput(input);
 
   if (num1 !== undefined && operation !== '' && num2 !== undefined) {
     const result = operate(num1, operation, num2);
@@ -94,17 +94,22 @@ function negateNumberIfRequired(num) {
   return negativeEntry === true ? -num : num;
 }
 
+function updatePreviousInput(newInput) {
+  newInput = validateInput(newInput) === true ? newInput : '';
+  previousInput += newInput;
+}
+
 /**
  * Validates input to prevent unexpected result.
  * Prevents concatenating multiple '.'
- * @param {String} inputString
+ * @param {String} string
  * @returns {String}
  */
-function validateInput(inputString) {
-  if (inputString === '.' && previousInput.includes(inputString)) {
-    return '';
+function validateInput(string) {
+  if (string === '.' && previousInput.includes(string)) {
+    return false;
   }
-  return inputString;
+  return true;
 }
 
 /**
