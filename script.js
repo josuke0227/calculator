@@ -21,7 +21,7 @@ while (true) {
 
   if (num1 !== undefined && operation !== '' && num2 !== undefined) {
     const result = operate(num1, operation, num2);
-    num1 = roundIfNecessary(num1, num2, result);
+    num1 = roundIfNecessary(num1, operation, num2, result);
     num2 = undefined;
     operation = input;
   }
@@ -90,12 +90,11 @@ function toNumber(string) {
  * @param {Number} result
  * @returns
  */
-function roundIfNecessary(operand1, operand2, result) {
-  if (areFraction(operand1, operand2) === true) {
-    const decimalDigit = getMaxDecimalDigitLength(operand1, operand2);
-    return result.toFixed(decimalDigit);
+function roundIfNecessary(operand1, operator, operand2, result) {
+  if (areFraction(operand1, operand2) === false || operator === '/') {
+    return result;
   }
-  return result;
+  return result.toFixed(getFractionalDigits(operand1, operator, operand2));
 }
 
 /**
@@ -109,15 +108,44 @@ function areFraction(a, b) {
 }
 
 /**
+ * The decimal digit that result should be rounded up changes based on the type of the calculation.
+ * This function switches the way of computing the rounding limit based on the operator.
+ * @param {Number} operand1
+ * @param {String} operator
+ * @param {Number} operand2
+ * @returns {Number}
+ */
+function getFractionalDigits(operand1, operator, operand2) {
+  if (operator === '+' || operator === '-') {
+    return getMaxDecimalDigitLength(operand1, operand2);
+  }
+  if (operator === '*') {
+    return getTotalDecimalDigitLength(operand1, operand2);
+  }
+}
+
+/**
  * Returns longer decimal digit length between two floating point numbers.
  * @param {Number} a
  * @param {Number} b
- * @returns
+ * @returns {Number}
  */
 function getMaxDecimalDigitLength(a, b) {
   const lengthA = getDecimalDigitLength(a);
   const lengthB = getDecimalDigitLength(b);
   return Math.max(lengthA, lengthB);
+}
+
+/**
+ * Returns the total decimal digit length between two floating point numbers.
+ * @param {Number} a
+ * @param {Number} b
+ * @returns {Number}
+ */
+function getTotalDecimalDigitLength(a, b) {
+  const lengthA = getDecimalDigitLength(a);
+  const lengthB = getDecimalDigitLength(b);
+  return lengthA + lengthB;
 }
 
 /**
