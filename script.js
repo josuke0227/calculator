@@ -1,6 +1,6 @@
-const MAX_DIGITS = 9;
 const MAX_VALUE = 999_999_999;
-const MIN_VALUE = -999_999_999;
+const MIN_VALUE = -MAX_VALUE;
+const COMMA_INSERTION_INTERVAL = 3;
 let previousInput = '';
 let num1;
 let operation = '';
@@ -82,6 +82,7 @@ function isOperator(character) {
  * @returns {Number}
  */
 function toNumber(string) {
+  string = string.replace(',', '');
   let value = string.includes('.') ? parseFloat(string) : parseInt(string);
   return negateNumberIfRequired(value);
 }
@@ -102,7 +103,7 @@ function negateNumberIfRequired(num) {
  */
 function updatePreviousInput(newInput) {
   newInput = validateInput(newInput) === true ? newInput : '';
-  previousInput += newInput;
+  previousInput = insertCommas(previousInput + newInput);
 }
 
 /**
@@ -117,7 +118,7 @@ function validateInput(string) {
   if (string === '.' && previousInput.includes(string)) {
     result = false;
   }
-  if (countDigits(previousInput) >= MAX_DIGITS) {
+  if (countDigits(previousInput) >= countDigits(`${MAX_VALUE}`)) {
     result = false;
   }
   return result;
@@ -130,7 +131,65 @@ function validateInput(string) {
  * @returns {Number}
  */
 function countDigits(string) {
-  return string.replace('.', '').length;
+  return extractDigits(string).length;
+}
+
+/**
+ * Filter out "," or "." from the display value - "previousInput"
+ * @param {String} string
+ * @returns {String}
+ */
+function extractDigits(string) {
+  return string.replace(/[,.]/g, '');
+}
+
+/**
+ * Inserts comma(s) for each designated intervals.
+ * Calculates appropriate insertion as input value grows.
+ * @param {String} string
+ * @returns {String}
+ */
+function insertCommas(string) {
+  let fraction = undefined;
+  // Prevents inserting commas for fractional part of the number.
+  if (string.includes('.')) {
+    const [integerPart, fractionPart] = string.split('.');
+    string = integerPart;
+    fraction = fractionPart;
+  }
+
+  string = extractDigits(string).split('');
+  const repetition = getNumberOfCommas(string.length, COMMA_INSERTION_INTERVAL);
+  let actualLength = string.length; // The calculation of the insertion point of comma should be done by the length without comma.
+  for (let i = 1; i <= repetition; i++) {
+    const index = actualLength - COMMA_INSERTION_INTERVAL * i;
+    if (string[index] !== undefined) {
+      const comma = ','; //Makes 'actualLength' calculation self-explanatory.
+      string.splice(index, 0, comma);
+      actualLength = string.length - comma.length; // Exclude the count of comma inserted.
+    }
+  }
+  if (fraction !== undefined) {
+    const fractionNum = fraction === '' ? '.' : `.${fraction}`;
+    return string.join('') + fractionNum;
+  }
+  return string.join('');
+}
+
+/**
+ *
+ * @param {Number} stringLength
+ * @param {Number} interval
+ * @returns {Number}
+ */
+function getNumberOfCommas(stringLength, interval) {
+  let count = 0;
+  for (let i = 1; i <= stringLength; i++) {
+    if (interval < i && i % interval === 1) {
+      count++;
+    }
+  }
+  return count;
 }
 
 /**
