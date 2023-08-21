@@ -13,16 +13,16 @@ while (true) {
     break;
   }
 
-  if (isOperator(input) && num1 === undefined) {
+  if (isOperator(input) && !hasValue(num1)) {
     num1 = toNumber(previousInput);
     operation = input;
     previousInput = '';
-  } else if (isOperator(input) && num2 === undefined) {
+  } else if (isOperator(input) && !hasValue(num2)) {
     num2 = toNumber(previousInput);
     previousInput = '';
   } else updatePreviousInput(input);
 
-  if (num1 !== undefined && operation !== '' && num2 !== undefined) {
+  if (hasValue(num1) && operation !== '' && hasValue(num2)) {
     const result = operate(num1, operation, num2);
     num1 = roundIfNecessary(num1, operation, num2, result);
     num2 = undefined;
@@ -40,6 +40,15 @@ while (true) {
     alert(toExponentialIfRequired(num1));
     break;
   }
+}
+
+/**
+ * Checks num1 or num2 has value
+ * @param {any} variable
+ * @returns {Boolean}
+ */
+function hasValue(variable) {
+  return variable !== undefined;
 }
 
 /**
