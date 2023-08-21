@@ -5,21 +5,53 @@ let previousInput = '';
 let num1;
 let operation = '';
 let num2;
-let negativeEntry = true;
+let negativeEntry = false;
 
-// const buttons = document.querySelectorAll('.button');
-// buttons.forEach((b) => b.addEventListener('click', (e) => handleClick(e)));
+const buttons = document.querySelectorAll('.button');
+buttons.forEach((b) => b.addEventListener('click', (e) => handleClick(e)));
 
-// const display = document.querySelector('.display');
+const display = document.querySelector('.display');
 
-// function handleClick({ target }) {
-//   let input;
-//   const dataValue = target.closest('[data-value]');
-//   if (dataValue) {
-//     input = dataValue.getAttribute('data-value');
+function handleClick({ target }) {
+  const input = getInput(target);
+
+  if (input === undefined) return;
+
+  if (isOperator(input) && !hasValue(num1)) {
+    num1 = toNumber(previousInput);
+    operation = input;
+    display.textContent = getDisplayValue(operation, num1);
+    previousInput = '';
+  } else if (isOperator(input) && !hasValue(num2)) {
+    num2 = toNumber(previousInput);
+    previousInput = '';
+  } else {
+    updatePreviousInput(input);
+    display.textContent = previousInput;
+  }
+
+  if (hasValue(num1) && operation !== '' && hasValue(num2)) {
+    const result = operate(num1, operation, num2);
+    num1 = roundIfNecessary(num1, operation, num2, result);
+    num2 = undefined;
+    operation = input;
+    display.textContent = getDisplayValue(operation, num1);
+  }
+
+  if (input === '=' && isOverLimit(num1)) {
+    display.textContent = toExponentialIfRequired(num1);
+  }
+
+  if (input === '=' && !isOverLimit(num1)) {
+    display.textContent = insertCommas(`${num1}`);
+  }
+}
+
+// while (true) {
+//   const input = prompt();
+//   if (input === null) {
+//     break;
 //   }
-
-//   if (input === undefined) return;
 
 //   if (isOperator(input) && !hasValue(num1)) {
 //     num1 = toNumber(previousInput);
@@ -28,57 +60,41 @@ let negativeEntry = true;
 //   } else if (isOperator(input) && !hasValue(num2)) {
 //     num2 = toNumber(previousInput);
 //     previousInput = '';
-//   } else {
-//     updatePreviousInput(input);
-//     display.textContent = previousInput;
-//   }
+//   } else updatePreviousInput(input);
 
 //   if (hasValue(num1) && operation !== '' && hasValue(num2)) {
 //     const result = operate(num1, operation, num2);
+//     console.log(result);
 //     num1 = roundIfNecessary(num1, operation, num2, result);
 //     num2 = undefined;
 //     operation = input;
 //   }
 
+//   alert(`
+//     previousInput: ${previousInput}
+//     num1: ${num1}
+//     operation: ${operation}
+//     num2: ${num2}
+//   `);
+
 //   if (input === '=') {
-//     display.textContent = toExponentialIfRequired(num1);
+//     alert(toExponentialIfRequired(num1));
+//     break;
 //   }
 // }
 
-while (true) {
-  const input = prompt();
-  if (input === null) {
-    break;
+/**
+ * Extract value to determine which button was clicked.
+ * @param {Element} element
+ * @returns {String}
+ */
+function getInput(element) {
+  let input;
+  const dataValue = element.closest('[data-value]');
+  if (dataValue) {
+    input = dataValue.getAttribute('data-value');
   }
-
-  if (isOperator(input) && !hasValue(num1)) {
-    num1 = toNumber(previousInput);
-    operation = input;
-    previousInput = '';
-  } else if (isOperator(input) && !hasValue(num2)) {
-    num2 = toNumber(previousInput);
-    previousInput = '';
-  } else updatePreviousInput(input);
-
-  if (hasValue(num1) && operation !== '' && hasValue(num2)) {
-    const result = operate(num1, operation, num2);
-    console.log(result);
-    num1 = roundIfNecessary(num1, operation, num2, result);
-    num2 = undefined;
-    operation = input;
-  }
-
-  alert(`
-    previousInput: ${previousInput}
-    num1: ${num1}
-    operation: ${operation}
-    num2: ${num2}
-  `);
-
-  if (input === '=') {
-    alert(toExponentialIfRequired(num1));
-    break;
-  }
+  return input;
 }
 
 /**
@@ -130,11 +146,32 @@ function isOperator(character) {
  * @returns {Number}
  */
 function toNumber(string) {
-  console.log('string', string);
   string = string.replaceAll(',', '');
-  console.log('string', string);
   let value = string.includes('.') ? parseFloat(string) : parseInt(string);
   return negateNumberIfRequired(value);
+}
+
+/**
+ * Converts current calculation result in the form that is displayed on the display UI component.
+ * @param {String} operator
+ * @param {Number} operand
+ * @returns {String}
+ */
+function getDisplayValue(operator, operand) {
+  operator = getDisplayValueOfOperator(operator);
+  operand = insertCommas(`${operand}`);
+  return `${operator} ${operand}`;
+}
+
+/**
+ * Get the operator in string that in the form that is used in math.
+ * @param {String} operator
+ * @returns {String}
+ */
+function getDisplayValueOfOperator(operator) {
+  if (operator === '*') return '×';
+  if (operator === '/') return '÷';
+  return operator;
 }
 
 /**
@@ -323,5 +360,14 @@ function getDecimalDigitLength(num) {
  * @returns {String}
  */
 function toExponentialIfRequired(num) {
-  return MAX_VALUE < num || MIN_VALUE > num ? num.toExponential(0) : num;
+  return isOverLimit(num) ? num.toExponential(0) : num;
+}
+
+/**
+ *
+ * @param {Integer} num
+ * @returns {Boolean}
+ */
+function isOverLimit(num) {
+  return MAX_VALUE < num || MIN_VALUE > num;
 }
