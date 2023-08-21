@@ -7,6 +7,44 @@ let operation = '';
 let num2;
 let negativeEntry = true;
 
+// const buttons = document.querySelectorAll('.button');
+// buttons.forEach((b) => b.addEventListener('click', (e) => handleClick(e)));
+
+// const display = document.querySelector('.display');
+
+// function handleClick({ target }) {
+//   let input;
+//   const dataValue = target.closest('[data-value]');
+//   if (dataValue) {
+//     input = dataValue.getAttribute('data-value');
+//   }
+
+//   if (input === undefined) return;
+
+//   if (isOperator(input) && !hasValue(num1)) {
+//     num1 = toNumber(previousInput);
+//     operation = input;
+//     previousInput = '';
+//   } else if (isOperator(input) && !hasValue(num2)) {
+//     num2 = toNumber(previousInput);
+//     previousInput = '';
+//   } else {
+//     updatePreviousInput(input);
+//     display.textContent = previousInput;
+//   }
+
+//   if (hasValue(num1) && operation !== '' && hasValue(num2)) {
+//     const result = operate(num1, operation, num2);
+//     num1 = roundIfNecessary(num1, operation, num2, result);
+//     num2 = undefined;
+//     operation = input;
+//   }
+
+//   if (input === '=') {
+//     display.textContent = toExponentialIfRequired(num1);
+//   }
+// }
+
 while (true) {
   const input = prompt();
   if (input === null) {
@@ -24,6 +62,7 @@ while (true) {
 
   if (hasValue(num1) && operation !== '' && hasValue(num2)) {
     const result = operate(num1, operation, num2);
+    console.log(result);
     num1 = roundIfNecessary(num1, operation, num2, result);
     num2 = undefined;
     operation = input;
@@ -91,7 +130,9 @@ function isOperator(character) {
  * @returns {Number}
  */
 function toNumber(string) {
-  string = string.replace(',', '');
+  console.log('string', string);
+  string = string.replaceAll(',', '');
+  console.log('string', string);
   let value = string.includes('.') ? parseFloat(string) : parseInt(string);
   return negateNumberIfRequired(value);
 }
