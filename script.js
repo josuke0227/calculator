@@ -15,73 +15,62 @@ const display = document.querySelector('.display');
 function handleClick({ target }) {
   const input = getInput(target);
 
-  if (input === undefined) return;
-
-  if (isOperator(input) && !hasValue(num1)) {
-    num1 = toNumber(previousInput);
-    operation = input;
-    display.textContent = getDisplayValue(operation, num1);
-    previousInput = '';
-  } else if (isOperator(input) && !hasValue(num2)) {
-    num2 = toNumber(previousInput);
-    previousInput = '';
-  } else {
+  if (!isNaN(parseInt(input)) || input === '.') {
     updatePreviousInput(input);
     display.textContent = previousInput;
+    return;
   }
 
-  if (hasValue(num1) && operation !== '' && hasValue(num2)) {
+  if (isOperator(input)) {
+    if (previousInput === '') return;
+
+    if (!hasValue(num1)) {
+      num1 = toNumber(previousInput);
+      operation = input;
+      previousInput = '';
+      display.textContent = getDisplayValue(operation, num1);
+      return;
+    }
+
+    num2 = toNumber(previousInput);
+    if (isNaN(num2)) return;
     const result = operate(num1, operation, num2);
     num1 = roundIfNecessary(num1, operation, num2, result);
     num2 = undefined;
+
+    if (isOverLimit(num1)) {
+      display.textContent = toExponentialIfRequired(num1);
+    }
+
+    if (!isOverLimit(num1)) {
+      display.textContent = insertCommas(`${num1}`);
+    }
+    previousInput = '';
     operation = input;
-    display.textContent = getDisplayValue(operation, num1);
   }
 
-  if (input === '=' && isOverLimit(num1)) {
-    display.textContent = toExponentialIfRequired(num1);
-  }
+  if (input === '=') {
+    if (previousInput === '' || operation === '') return;
+    num2 = toNumber(previousInput);
+    if (isNaN(num2)) {
+      num2 = num1;
+      previousInput = `${num1}`;
+    }
+    const result = operate(num1, operation, num2);
+    num1 = roundIfNecessary(num1, operation, num2, result);
 
-  if (input === '=' && !isOverLimit(num1)) {
-    display.textContent = insertCommas(`${num1}`);
+    if (isOverLimit(num1)) {
+      display.textContent = toExponentialIfRequired(num1);
+    }
+
+    if (!isOverLimit(num1)) {
+      display.textContent = insertCommas(`${num1}`);
+    }
   }
+  console.log('num1', num1);
+  console.log('operation', operation);
+  console.log('num2', num2);
 }
-
-// while (true) {
-//   const input = prompt();
-//   if (input === null) {
-//     break;
-//   }
-
-//   if (isOperator(input) && !hasValue(num1)) {
-//     num1 = toNumber(previousInput);
-//     operation = input;
-//     previousInput = '';
-//   } else if (isOperator(input) && !hasValue(num2)) {
-//     num2 = toNumber(previousInput);
-//     previousInput = '';
-//   } else updatePreviousInput(input);
-
-//   if (hasValue(num1) && operation !== '' && hasValue(num2)) {
-//     const result = operate(num1, operation, num2);
-//     console.log(result);
-//     num1 = roundIfNecessary(num1, operation, num2, result);
-//     num2 = undefined;
-//     operation = input;
-//   }
-
-//   alert(`
-//     previousInput: ${previousInput}
-//     num1: ${num1}
-//     operation: ${operation}
-//     num2: ${num2}
-//   `);
-
-//   if (input === '=') {
-//     alert(toExponentialIfRequired(num1));
-//     break;
-//   }
-// }
 
 /**
  * Extract value to determine which button was clicked.
@@ -136,7 +125,7 @@ function operate(operandL, operator, operandR) {
  * @returns {Number}
  */
 function isOperator(character) {
-  const OPERATORS = ['+', '-', '/', '*', '='];
+  const OPERATORS = ['+', '-', '/', '*'];
   return OPERATORS.indexOf(character) != -1;
 }
 
