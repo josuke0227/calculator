@@ -7,6 +7,7 @@ let num1;
 let operation = '';
 let num2;
 let negativeEntry = false;
+let previousOperation = '';
 
 const buttons = document.querySelectorAll('.button');
 buttons.forEach((b) => b.addEventListener('click', (e) => handleClick(e)));
@@ -24,6 +25,12 @@ function handleClick({ target }) {
 
   if (isOperator(input)) {
     if (previousInput === '') return;
+
+    if (previousOperation === '=') {
+      operation = input;
+      previousInput = '';
+      return;
+    }
 
     if (!hasValue(num1)) {
       num1 = toNumber(previousInput);
@@ -51,6 +58,7 @@ function handleClick({ target }) {
   }
 
   if (input === '=') {
+    previousOperation = input;
     if (previousInput === '' || operation === '') return;
     num2 = toNumber(previousInput);
     if (isNaN(num2)) {
@@ -58,6 +66,7 @@ function handleClick({ target }) {
       previousInput = `${num1}`;
     }
     const result = operate(num1, operation, num2);
+    console.log(result);
     num1 = roundIfNecessary(num1, operation, num2, result);
 
     if (isOverLimit(num1)) {
@@ -71,6 +80,10 @@ function handleClick({ target }) {
   // console.log('num1', num1);
   // console.log('operation', operation);
   // console.log('num2', num2);
+}
+
+function isExponentialForm(num) {
+  return `${num}`.includes('e');
 }
 
 /**
@@ -227,6 +240,8 @@ function extractDigits(string) {
  * @returns {String}
  */
 function insertCommas(string) {
+  if (isExponentialForm(string)) return string;
+
   let fraction = undefined;
   // Prevents inserting commas for fractional part of the number.
   if (string.includes('.')) {
@@ -279,13 +294,22 @@ function getNumberOfCommas(stringLength, interval) {
  */
 function roundIfNecessary(operand1, operator, operand2, result) {
   if (operator === '/' && isFraction(result) && result >= MIN_FLOAT) {
-    return result.toFixed(8);
+    return roundByDigit(result, 8);
   }
 
-  if (areFraction(operand1, operand2) === false) {
+  if ((!isFraction(operand1) && !isFraction(operand2)) || result < MIN_FLOAT) {
     return result;
   }
-  return result.toFixed(getFractionalDigits(operand1, operator, operand2));
+
+  return roundByDigits(
+    result,
+    getFractionalDigits(operand1, operator, operand2)
+  );
+}
+
+function roundByDigits(number, digits) {
+  if (isExponentialForm(number)) return number;
+  return number.toFixed(digits);
 }
 
 /**
@@ -354,7 +378,11 @@ function getTotalDecimalDigitLength(a, b) {
  * @returns {Number}
  */
 function getDecimalDigitLength(num) {
-  return num.toString().split('.')[1].length;
+  try {
+    return num.toString().split('.')[1].length;
+  } catch (error) {
+    return 0;
+  }
 }
 
 /**
@@ -363,7 +391,11 @@ function getDecimalDigitLength(num) {
  * @returns {String}
  */
 function toExponentialIfRequired(num) {
-  return isOverLimit(num) ? num.toExponential(0) : num;
+  try {
+    return isOverLimit(num) ? num.toExponential(0) : num;
+  } catch (error) {
+    return num;
+  }
 }
 
 /**
