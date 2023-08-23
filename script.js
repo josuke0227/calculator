@@ -1,5 +1,6 @@
 const MAX_VALUE = 999_999_999;
 const MIN_VALUE = -MAX_VALUE;
+const MIN_FLOAT = 0.00000001;
 const COMMA_INSERTION_INTERVAL = 3;
 let previousInput = '';
 let num1;
@@ -58,6 +59,7 @@ function handleClick({ target }) {
     }
     const result = operate(num1, operation, num2);
     num1 = roundIfNecessary(num1, operation, num2, result);
+    console.log(num1);
 
     if (isOverLimit(num1)) {
       display.textContent = toExponentialIfRequired(num1);
@@ -67,9 +69,9 @@ function handleClick({ target }) {
       display.textContent = insertCommas(`${num1}`);
     }
   }
-  console.log('num1', num1);
-  console.log('operation', operation);
-  console.log('num2', num2);
+  // console.log('num1', num1);
+  // console.log('operation', operation);
+  // console.log('num2', num2);
 }
 
 /**
@@ -277,7 +279,11 @@ function getNumberOfCommas(stringLength, interval) {
  * @returns
  */
 function roundIfNecessary(operand1, operator, operand2, result) {
-  if (areFraction(operand1, operand2) === false || operator === '/') {
+  if (operator === '/' && isFraction(result)) {
+    return result.toFixed(8);
+  }
+
+  if (areFraction(operand1, operand2) === false) {
     return result;
   }
   return result.toFixed(getFractionalDigits(operand1, operator, operand2));
@@ -290,7 +296,16 @@ function roundIfNecessary(operand1, operator, operand2, result) {
  * @returns {Boolean}
  */
 function areFraction(a, b) {
-  return a < 1 && 0 < a && b < 1 && 0 < b;
+  return isFraction(a) && isFraction(b);
+}
+
+/**
+ * See if given numbers is fraction
+ * @param {Number} num
+ * @returns {Boolean}
+ */
+function isFraction(num) {
+  return num < 1 && 0 < num;
 }
 
 /**
