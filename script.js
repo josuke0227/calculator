@@ -59,7 +59,6 @@ function handleClick({ target }) {
     }
     const result = operate(num1, operation, num2);
     num1 = roundIfNecessary(num1, operation, num2, result);
-    console.log(num1);
 
     if (isOverLimit(num1)) {
       display.textContent = toExponentialIfRequired(num1);
@@ -279,7 +278,7 @@ function getNumberOfCommas(stringLength, interval) {
  * @returns
  */
 function roundIfNecessary(operand1, operator, operand2, result) {
-  if (operator === '/' && isFraction(result)) {
+  if (operator === '/' && isFraction(result) && result >= MIN_FLOAT) {
     return result.toFixed(8);
   }
 
@@ -373,5 +372,5 @@ function toExponentialIfRequired(num) {
  * @returns {Boolean}
  */
 function isOverLimit(num) {
-  return MAX_VALUE < num || MIN_VALUE > num;
+  return MAX_VALUE < num || MIN_VALUE > num || num < MIN_FLOAT;
 }
