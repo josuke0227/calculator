@@ -1,6 +1,5 @@
 const MAX_VALUE = 999_999_999;
 const MIN_VALUE = -MAX_VALUE;
-const MIN_FLOAT = 0.00000001;
 const COMMA_INSERTION_INTERVAL = 3;
 let previousInput = '';
 let num1;
@@ -58,16 +57,21 @@ function handleClick({ target }) {
   }
 
   if (input === '=') {
+    // console.log('previousInput', previousInput);
+    // console.log('num1', num1);
+    // console.log('operator', operation);
+    // console.log('num2', num2);
+
     previousOperation = input;
-    if (previousInput === '' || operation === '') return;
+    if (operation === '') return;
     num2 = toNumber(previousInput);
     if (isNaN(num2)) {
       num2 = num1;
       previousInput = `${num1}`;
     }
     const result = operate(num1, operation, num2);
-    console.log(result);
     num1 = roundIfNecessary(num1, operation, num2, result);
+    console.log(num1);
 
     if (isOverLimit(num1)) {
       display.textContent = toExponentialIfRequired(num1);
@@ -77,9 +81,6 @@ function handleClick({ target }) {
       display.textContent = insertCommas(`${num1}`);
     }
   }
-  // console.log('num1', num1);
-  // console.log('operation', operation);
-  // console.log('num2', num2);
 }
 
 function isExponentialForm(num) {
@@ -292,24 +293,48 @@ function getNumberOfCommas(stringLength, interval) {
  * @param {Number} result
  * @returns
  */
-function roundIfNecessary(operand1, operator, operand2, result) {
-  if (operator === '/' && isFraction(result) && result >= MIN_FLOAT) {
-    return roundByDigit(result, 8);
+function roundIfNecessary(operand1, operator, operand2, calculationResult) {
+  if (!isFraction(calculationResult) || calculationResult === 0)
+    return calculationResult;
+
+  if (isExponentialForm(calculationResult)) {
+    return parseFloat(calculationResult.toExponential(0));
   }
 
-  if ((!isFraction(operand1) && !isFraction(operand2)) || result < MIN_FLOAT) {
-    return result;
-  }
-
-  return roundByDigits(
-    result,
-    getFractionalDigits(operand1, operator, operand2)
+  const digits = adjustDecimalLength(
+    operand1,
+    operator,
+    operand2,
+    calculationResult
   );
+  return parseFloat(calculationResult.toFixed(digits));
 }
+/**
+ * Dynamically change the decimal digit length by taking integer digits into account
+ * <Max 9 digits>.<Max 8 digits> e.g. 100 / 3 is 33.3333333(returns 7)
+ * @param {Number} operand1
+ * @param {String} operator
+ * @param {Number} operand2
+ * @param {Number} calculationResult
+ * @returns {Number}
+ */
+function adjustDecimalLength(operand1, operator, operand2, calculationResult) {
+  const maxDigits = getMaxDecimalDigits(calculationResult);
+  if (operator === '/') return maxDigits;
 
-function roundByDigits(number, digits) {
-  if (isExponentialForm(number)) return number;
-  return number.toFixed(digits);
+  const digits = getFractionalDigits(operand1, operator, operand2);
+  return digits > maxDigits ? maxDigits : digits;
+}
+/**
+ * Get how many decimal digits does given floating point number has.
+ * @param {Number} calculationResult
+ * @returns {Number}
+ */
+function getMaxDecimalDigits(calculationResult) {
+  if (!isFraction(calculationResult)) return 0;
+
+  const integerDigits = `${calculationResult}`.split('.')[0].length;
+  return 8 - integerDigits + 1; // maxDecimalDigits - integerDigits + countOfPrefixedZero e.g.(0.1)
 }
 
 /**
@@ -327,8 +352,8 @@ function areFraction(a, b) {
  * @param {Number} num
  * @returns {Boolean}
  */
-function isFraction(num) {
-  return num < 1 && 0 < num;
+function isFraction(number) {
+  return `${number}`.includes('.');
 }
 
 /**
@@ -378,11 +403,7 @@ function getTotalDecimalDigitLength(a, b) {
  * @returns {Number}
  */
 function getDecimalDigitLength(num) {
-  try {
-    return num.toString().split('.')[1].length;
-  } catch (error) {
-    return 0;
-  }
+  return isFraction(num) ? num.toString().split('.')[1].length : 0;
 }
 
 /**
@@ -404,5 +425,5 @@ function toExponentialIfRequired(num) {
  * @returns {Boolean}
  */
 function isOverLimit(num) {
-  return MAX_VALUE < num || MIN_VALUE > num || num < MIN_FLOAT;
+  return MAX_VALUE < num || MIN_VALUE > num;
 }
