@@ -22,67 +22,118 @@ function handleClick({ target }) {
     return;
   }
 
-  if (isOperator(input)) {
-    if (previousInput === '') return;
-
-    if (previousOperation === '=') {
-      operation = input;
-      previousInput = '';
-      return;
-    }
-
-    if (!hasValue(num1)) {
+  if (isOperator(input) && previousInput !== '') {
+    operation = input;
+    if (num1 === undefined) {
       num1 = toNumber(previousInput);
-      operation = input;
-      previousInput = '';
       display.textContent = getDisplayValue(operation, num1);
-      return;
-    }
-
-    num2 = toNumber(previousInput);
-    if (isNaN(num2)) return;
-    const result = operate(num1, operation, num2);
-    num1 = roundIfNecessary(num1, operation, num2, result);
-    num2 = undefined;
-
-    if (isOverLimit(num1)) {
-      display.textContent = toExponentialIfRequired(num1);
-    }
-
-    if (!isOverLimit(num1)) {
-      display.textContent = insertCommas(`${num1}`);
+    } else {
+      const num999 = toNumber(previousInput);
+      const result = operate(num1, operation, num999);
+      num1 = roundIfNecessary(num1, operation, num999, result);
+      display.textContent = getDisplayValue(operation, num1);
     }
     previousInput = '';
-    operation = input;
+    return;
   }
 
-  if (input === '=') {
-    // console.log('previousInput', previousInput);
-    // console.log('num1', num1);
-    // console.log('operator', operation);
-    // console.log('num2', num2);
-
-    previousOperation = input;
-    if (operation === '') return;
-    num2 = toNumber(previousInput);
-    if (isNaN(num2)) {
-      num2 = num1;
-      previousInput = `${num1}`;
+  if (input === '=' && operation !== '') {
+    if (previousInput !== '') {
+      const num999 = toNumber(previousInput);
+      const result = operate(num1, operation, num999);
+      num1 = roundIfNecessary(num1, operation, num999, result);
     }
-    const result = operate(num1, operation, num2);
-    num1 = roundIfNecessary(num1, operation, num2, result);
-    console.log(num1);
-
-    if (isOverLimit(num1)) {
-      display.textContent = toExponentialIfRequired(num1);
-    }
-
-    if (!isOverLimit(num1)) {
-      display.textContent = insertCommas(`${num1}`);
-    }
+    const content = isOverLimit(num1)
+      ? toExponentialIfRequired(num1)
+      : insertCommas(`${num1}`);
+    display.textContent = content;
+    previousInput = '';
+    return;
   }
+
+  //For chain calculating after = button was pressed.
+  operation = input;
+  display.textContent = getDisplayValue(operation, num1);
 }
 
+// function handleClick({ target }) {
+//   const input = getInput(target);
+
+//   if (!isNaN(parseInt(input)) || input === '.') {
+//     updatePreviousInput(input);
+//     display.textContent = previousInput;
+//     return;
+//   }
+
+//   if (isOperator(input)) {
+//     if (previousInput === '') return; // Do nothing if number entered.
+
+//     if (previousOperation === '=') {
+//       operation = input;
+//       previousInput = '';
+//       return;
+//     }
+
+//     if (!hasValue(num1)) {
+//       num1 = toNumber(previousInput);
+//       operation = input;
+//       previousInput = '';
+//       display.textContent = getDisplayValue(operation, num1);
+//       return;
+//     }
+
+//     num2 = toNumber(previousInput);
+//     if (isNaN(num2)) return;
+//     const result = operate(num1, operation, num2);
+//     num1 = roundIfNecessary(num1, operation, num2, result);
+//     num2 = undefined;
+
+//     if (isOverLimit(num1)) {
+//       display.textContent = toExponentialIfRequired(num1);
+//     }
+
+//     if (!isOverLimit(num1)) {
+//       display.textContent = insertCommas(`${num1}`);
+//     }
+//     previousInput = '';
+//     operation = input;
+//   }
+
+//   if (input === '=') {
+//     console.log('previousInput', previousInput);
+//     console.log('num1', num1);
+//     console.log('operator', operation);
+//     console.log('num2', num2);
+//     previousOperation = input;
+//     if (!hasValue(num1)) {
+//       num1 = toNumber(previousInput);
+//       return;
+//     }
+//     if (operation === '') return;
+//     num2 = toNumber(previousInput);
+//     if (isNaN(num2)) {
+//       num2 = num1;
+//       previousInput = `${num1}`;
+//     }
+//     const result = operate(num1, operation, num2);
+//     num1 = roundIfNecessary(num1, operation, num2, result);
+//     console.log(num1);
+
+//     if (isOverLimit(num1)) {
+//       display.textContent = toExponentialIfRequired(num1);
+//     }
+
+//     if (!isOverLimit(num1)) {
+//       display.textContent = insertCommas(`${num1}`);
+//     }
+//   }
+// }
+
+/**
+ * Sees if given number is exponential numerical form
+ * @param {Number} num
+ * @returns Boolean
+ */
 function isExponentialForm(num) {
   return `${num}`.includes('e');
 }
@@ -163,6 +214,7 @@ function toNumber(string) {
  */
 function getDisplayValue(operator, operand) {
   operator = getDisplayValueOfOperator(operator);
+  operand = toExponentialIfRequired(operand);
   operand = insertCommas(`${operand}`);
   return `${operator} ${operand}`;
 }
