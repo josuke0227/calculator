@@ -51,7 +51,6 @@ function handleClick({ target }) {
   }
 
   if (isOperator(input)) {
-    console.log('previousInput', previousInput);
     if (previousInput !== '') {
       operation = input;
       handleOperatorInput(input);
@@ -135,6 +134,10 @@ function handleNumberInput(input) {
 function handleEqualInput() {
   if (previousInput !== '') {
     num1 = calculate(num1, operation, previousInput);
+    if (isNaN(num1) || num1 === Infinity) {
+      displayErrorMessage();
+      return;
+    }
   }
   const content = isOverLimit(num1)
     ? toExponentialIfRequired(num1)
@@ -145,20 +148,23 @@ function handleEqualInput() {
 }
 
 /**
+ * Displays friendly error message if the result of a calculation is NaN or Infinity.
+ */
+function displayErrorMessage() {
+  display.textContent = 'Buy me a coffee☕️';
+  display.style.fontSize = '2.5rem';
+}
+
+/**
  * Routine when any operator is entered.
  * @param {String} operator
  */
 function handleOperatorInput(operator) {
   if (num1 === undefined) {
     num1 = toNumber(previousInput);
-    console.log('num1', num1);
   } else {
     num1 = calculate(num1, operator, previousInput);
   }
-  console.log(
-    'getDisplayValue(operator, num1)',
-    getDisplayValue(operator, num1)
-  );
   display.textContent = getDisplayValue(operator, num1);
   previousInput = '';
   negativeEntry = false;
@@ -415,7 +421,11 @@ function getNumberOfCommas(stringLength, interval) {
  * @returns
  */
 function roundIfNecessary(operand1, operator, operand2, calculationResult) {
-  if (!isFraction(calculationResult) || calculationResult === 0)
+  if (
+    !isFraction(calculationResult) ||
+    calculationResult === 0 ||
+    calculationResult === Infinity
+  )
     return calculationResult;
 
   if (isExponentialForm(calculationResult)) {

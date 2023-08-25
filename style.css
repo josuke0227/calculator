@@ -23,16 +23,21 @@ body {
   width: 400px;
 }
 
+.display-container {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  box-shadow: inset 5px 5px 9px #0f0f0f, inset -5px -5px 9px #2f2f2f;
+  border-radius: inherit;
+  height: 64px;
+  padding: 0.5rem 1rem;
+}
+
 .display {
   font-size: 3.3rem;
   text-align: right;
-  border-radius: inherit;
   background: inherit;
-  box-shadow: inset 5px 5px 9px #0f0f0f, inset -5px -5px 9px #2f2f2f;
   color: var(--text-color-normal);
-  padding: 0.5rem 1rem;
-  margin: 0 auto;
-  min-height: 64px;
 }
 
 .button-container {
