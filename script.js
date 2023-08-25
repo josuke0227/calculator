@@ -4,9 +4,7 @@ const COMMA_INSERTION_INTERVAL = 3;
 let previousInput = '';
 let num1;
 let operation = '';
-let num2;
 let negativeEntry = false;
-let previousOperation = '';
 
 const buttons = document.querySelectorAll('.button');
 buttons.forEach((b) => b.addEventListener('click', (e) => handleClick(e)));
@@ -26,22 +24,17 @@ function handleClick({ target }) {
     operation = input;
     if (num1 === undefined) {
       num1 = toNumber(previousInput);
-      display.textContent = getDisplayValue(operation, num1);
     } else {
-      const num999 = toNumber(previousInput);
-      const result = operate(num1, operation, num999);
-      num1 = roundIfNecessary(num1, operation, num999, result);
-      display.textContent = getDisplayValue(operation, num1);
+      calculate();
     }
+    display.textContent = getDisplayValue(operation, num1);
     previousInput = '';
     return;
   }
 
   if (input === '=' && operation !== '') {
     if (previousInput !== '') {
-      const num999 = toNumber(previousInput);
-      const result = operate(num1, operation, num999);
-      num1 = roundIfNecessary(num1, operation, num999, result);
+      calculate();
     }
     const content = isOverLimit(num1)
       ? toExponentialIfRequired(num1)
@@ -51,83 +44,19 @@ function handleClick({ target }) {
     return;
   }
 
-  //For chain calculating after = button was pressed.
+  //For chain calculating after "=" button was pressed.
   operation = input;
   display.textContent = getDisplayValue(operation, num1);
 }
 
-// function handleClick({ target }) {
-//   const input = getInput(target);
-
-//   if (!isNaN(parseInt(input)) || input === '.') {
-//     updatePreviousInput(input);
-//     display.textContent = previousInput;
-//     return;
-//   }
-
-//   if (isOperator(input)) {
-//     if (previousInput === '') return; // Do nothing if number entered.
-
-//     if (previousOperation === '=') {
-//       operation = input;
-//       previousInput = '';
-//       return;
-//     }
-
-//     if (!hasValue(num1)) {
-//       num1 = toNumber(previousInput);
-//       operation = input;
-//       previousInput = '';
-//       display.textContent = getDisplayValue(operation, num1);
-//       return;
-//     }
-
-//     num2 = toNumber(previousInput);
-//     if (isNaN(num2)) return;
-//     const result = operate(num1, operation, num2);
-//     num1 = roundIfNecessary(num1, operation, num2, result);
-//     num2 = undefined;
-
-//     if (isOverLimit(num1)) {
-//       display.textContent = toExponentialIfRequired(num1);
-//     }
-
-//     if (!isOverLimit(num1)) {
-//       display.textContent = insertCommas(`${num1}`);
-//     }
-//     previousInput = '';
-//     operation = input;
-//   }
-
-//   if (input === '=') {
-//     console.log('previousInput', previousInput);
-//     console.log('num1', num1);
-//     console.log('operator', operation);
-//     console.log('num2', num2);
-//     previousOperation = input;
-//     if (!hasValue(num1)) {
-//       num1 = toNumber(previousInput);
-//       return;
-//     }
-//     if (operation === '') return;
-//     num2 = toNumber(previousInput);
-//     if (isNaN(num2)) {
-//       num2 = num1;
-//       previousInput = `${num1}`;
-//     }
-//     const result = operate(num1, operation, num2);
-//     num1 = roundIfNecessary(num1, operation, num2, result);
-//     console.log(num1);
-
-//     if (isOverLimit(num1)) {
-//       display.textContent = toExponentialIfRequired(num1);
-//     }
-
-//     if (!isOverLimit(num1)) {
-//       display.textContent = insertCommas(`${num1}`);
-//     }
-//   }
-// }
+/**
+ * Conduct calculation and set value to num1;
+ */
+function calculate() {
+  const operand = toNumber(previousInput);
+  const result = operate(num1, operation, operand);
+  num1 = roundIfNecessary(num1, operation, operand, result);
+}
 
 /**
  * Sees if given number is exponential numerical form
@@ -150,15 +79,6 @@ function getInput(element) {
     input = dataValue.getAttribute('data-value');
   }
   return input;
-}
-
-/**
- * Checks num1 or num2 has value
- * @param {any} variable
- * @returns {Boolean}
- */
-function hasValue(variable) {
-  return variable !== undefined;
 }
 
 /**
