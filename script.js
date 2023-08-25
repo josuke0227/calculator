@@ -2,60 +2,190 @@ const MAX_VALUE = 999_999_999;
 const MIN_VALUE = -MAX_VALUE;
 const COMMA_INSERTION_INTERVAL = 3;
 let previousInput = '';
+let previousOperation = '';
 let num1;
 let operation = '';
 let negativeEntry = false;
 
 const buttons = document.querySelectorAll('.button');
-buttons.forEach((b) => b.addEventListener('click', (e) => handleClick(e)));
+buttons.forEach((b) => {
+  b.addEventListener('mousedown', (e) => handleClick(e));
+  b.addEventListener('mouseup', (e) => handleMouseUp(e));
+  b.addEventListener('mouseleave', (e) => handleMouseUp(e));
+});
 
 const display = document.querySelector('.display');
 
+function handleMouseUp({ target }) {
+  const element = target.closest('[data-value]');
+  element.classList.remove('clicked');
+}
+
 function handleClick({ target }) {
+  addCSSClass(target);
   const input = getInput(target);
 
-  if (!isNaN(parseInt(input)) || input === '.') {
-    updatePreviousInput(input);
-    display.textContent = previousInput;
+  if (input === 'ac') {
+    reset();
     return;
   }
 
-  if (isOperator(input) && previousInput !== '') {
-    operation = input;
-    if (num1 === undefined) {
-      num1 = toNumber(previousInput);
-    } else {
-      calculate();
-    }
-    display.textContent = getDisplayValue(operation, num1);
-    previousInput = '';
+  if (input === 'c') {
+    handleClearInput();
     return;
+  }
+
+  if (input === 'toggle') {
+    handleToggleInput();
+    return;
+  }
+
+  if (input === '%' && previousInput !== '') {
+    handlePercentageInput();
+    return;
+  }
+
+  if (!isNaN(parseInt(input)) || input === '.') {
+    handleNumberInput(input);
+    return;
+  }
+
+  if (isOperator(input)) {
+    console.log('previousInput', previousInput);
+    if (previousInput !== '') {
+      operation = input;
+      handleOperatorInput(input);
+      return;
+    }
+    //For chain calculating after "=" button was pressed.
+    if (num1 !== undefined) {
+      operation = input;
+      display.textContent = getDisplayValue(operation, num1);
+      return;
+    }
   }
 
   if (input === '=' && operation !== '') {
-    if (previousInput !== '') {
-      calculate();
-    }
-    const content = isOverLimit(num1)
-      ? toExponentialIfRequired(num1)
-      : insertCommas(`${num1}`);
-    display.textContent = content;
-    previousInput = '';
+    handleEqualInput();
     return;
   }
-
-  //For chain calculating after "=" button was pressed.
-  operation = input;
-  display.textContent = getDisplayValue(operation, num1);
 }
 
 /**
- * Conduct calculation and set value to num1;
+ * Add CSS class to a clicked button.
+ * @param {Element} target
  */
-function calculate() {
-  const operand = toNumber(previousInput);
-  const result = operate(num1, operation, operand);
-  num1 = roundIfNecessary(num1, operation, operand, result);
+function addCSSClass(target) {
+  const element = target.closest('[data-value]');
+  element.classList.add('clicked');
+}
+
+/**
+ * Routine process when "c" is entered.
+ */
+function handleClearInput() {
+  if (previousInput === '') {
+    reset();
+  }
+  previousInput = '';
+  display.textContent = 0;
+}
+
+/**
+ * Routine process when "+/-" is entered.
+ */
+function handleToggleInput() {
+  negativeEntry = !negativeEntry;
+  if (previousInput === '') {
+    display.textContent = '-0';
+    return;
+  }
+  previousInput = putMinusIfRequired(previousInput);
+  display.textContent = previousInput;
+}
+
+/**
+ * Routine process when "%" is entered.
+ */
+function handlePercentageInput() {
+  previousOperation = '%';
+  let operand1 = isExponentialForm(previousInput)
+    ? previousInput
+    : toNumber(previousInput);
+  previousInput = `${calculate(operand1, '*', '0.01')}`;
+  display.textContent = getDisplayValue('', previousInput);
+}
+
+/**
+ * Routine process when number is entered.
+ * @param {String} input
+ */
+function handleNumberInput(input) {
+  if (previousOperation === '%') {
+    previousOperation = '';
+    previousInput = '';
+  }
+  updatePreviousInput(input);
+  display.textContent = previousInput;
+}
+
+/**
+ * Routine process when "=" is entered.
+ */
+function handleEqualInput() {
+  if (previousInput !== '') {
+    num1 = calculate(num1, operation, previousInput);
+  }
+  const content = isOverLimit(num1)
+    ? toExponentialIfRequired(num1)
+    : insertCommas(`${num1}`);
+  display.textContent = content;
+  previousInput = '';
+  negativeEntry = false;
+}
+
+/**
+ * Routine when any operator is entered.
+ * @param {String} operator
+ */
+function handleOperatorInput(operator) {
+  if (num1 === undefined) {
+    num1 = toNumber(previousInput);
+    console.log('num1', num1);
+  } else {
+    num1 = calculate(num1, operator, previousInput);
+  }
+  console.log(
+    'getDisplayValue(operator, num1)',
+    getDisplayValue(operator, num1)
+  );
+  display.textContent = getDisplayValue(operator, num1);
+  previousInput = '';
+  negativeEntry = false;
+}
+
+/**
+ * Resets all the values that are relevant to calculating.
+ */
+function reset() {
+  previousInput = '';
+  num1 = undefined;
+  operation = '';
+  negativeEntry = false;
+  display.textContent = 0;
+}
+
+/**
+ * Execute calculation and round up to proper decimal digits if required.
+ * @param {Number} operandL
+ * @param {String} operator
+ * @param {String} operandR
+ * @returns {Number}
+ */
+function calculate(operandL, operator, operandR) {
+  operandR = toNumber(operandR);
+  const result = operate(operandL, operator, operandR);
+  return roundIfNecessary(operandL, operator, operandR, result);
 }
 
 /**
@@ -157,7 +287,8 @@ function getDisplayValueOfOperator(operator) {
  * @returns {Number}
  */
 function negateNumberIfRequired(num) {
-  return negativeEntry === true ? -num : num;
+  return num;
+  // return negativeEntry === true ? -num : num;
 }
 
 /**
@@ -166,7 +297,24 @@ function negateNumberIfRequired(num) {
  */
 function updatePreviousInput(newInput) {
   newInput = validateInput(newInput) === true ? newInput : '';
-  previousInput = insertCommas(previousInput + newInput);
+  let newValue = insertCommas(previousInput + newInput);
+  previousInput = putMinusIfRequired(newValue);
+}
+
+/**
+ *Puts - when negative operand should be entered.
+ * @param {String} string
+ * @returns {String}
+ */
+function putMinusIfRequired(string) {
+  if (negativeEntry === true && !string.startsWith('-')) {
+    return `-${string}`;
+  }
+
+  if (negativeEntry === false) {
+    return string.replace('-', '');
+  }
+  return string;
 }
 
 /**
@@ -203,7 +351,7 @@ function countDigits(string) {
  * @returns {String}
  */
 function extractDigits(string) {
-  return string.replace(/[,.]/g, '');
+  return string.replace(/[,.-]/g, '');
 }
 
 /**
@@ -236,9 +384,10 @@ function insertCommas(string) {
   }
   if (fraction !== undefined) {
     const fractionNum = fraction === '' ? '.' : `.${fraction}`;
-    return string.join('') + fractionNum;
+    const result = string.join('') + fractionNum;
+    return putMinusIfRequired(result);
   }
-  return string.join('');
+  return putMinusIfRequired(string.join(''));
 }
 
 /**
