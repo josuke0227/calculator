@@ -70,6 +70,10 @@ body {
   color: #3a61fd;
 }
 
+.text-active {
+  color: #16ff00;
+}
+
 .button:hover {
   background-color: #242424;
 }

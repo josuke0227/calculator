@@ -27,6 +27,7 @@ function handleClick({ target }) {
   const input = getInput(target);
 
   if (input === 'ac') {
+    clearActiveClass();
     reset();
     return;
   }
@@ -52,6 +53,8 @@ function handleClick({ target }) {
   }
 
   if (isOperator(input)) {
+    clearActiveClass();
+    addActiveClass(input);
     if (previousInput !== '') {
       operation = input;
       handleOperatorInput(input);
@@ -62,14 +65,41 @@ function handleClick({ target }) {
       operation = input;
       display.textContent = getDisplayValue(num1);
       return;
-      z;
     }
   }
 
   if (input === '=' && operation !== '') {
+    clearActiveClass();
     handleEqualInput();
     return;
   }
+}
+
+/**
+ * Make operator clicked active text color
+ * @param {String} operator
+ */
+function addActiveClass(operator) {
+  buttons.forEach((b) => {
+    const element = b.closest('[data-value]');
+    const dataValue = element.getAttribute('data-value');
+    if (dataValue && dataValue === operator) {
+      console.log('dataValue', dataValue);
+      element.classList.add('text-active');
+    }
+  });
+}
+
+/**
+ * Reset the operator button text color
+ */
+function clearActiveClass() {
+  buttons.forEach((b) => {
+    const element = b.closest('[data-value]');
+    if (element.classList.contains('text-active')) {
+      element.classList.remove('text-active');
+    }
+  });
 }
 
 /**
@@ -86,6 +116,7 @@ function addCSSClass(target) {
  */
 function handleClearInput() {
   if (previousInput === '') {
+    clearActiveClass();
     reset();
   }
   previousInput = '';
@@ -143,6 +174,7 @@ function handleEqualInput() {
     ? toExponentialIfRequired(num1)
     : insertCommas(`${num1}`);
   display.textContent = content;
+  operation = '';
   previousInput = '';
   negativeEntry = false;
 }
