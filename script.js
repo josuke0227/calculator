@@ -7,6 +7,23 @@ let num1;
 let operation = '';
 let negativeEntry = false;
 
+window.addEventListener('keydown', ({ key }) => {
+  const element = getElement(key);
+  if (element === null) {
+    return;
+  }
+  addCSSClass(element);
+  main(element.getAttribute('data-value'));
+});
+
+window.addEventListener('keyup', ({ key }) => {
+  const element = getElement(key);
+  if (element === null) {
+    return;
+  }
+  handleMouseUp(element);
+});
+
 const buttons = document.querySelectorAll('.button');
 buttons.forEach((b) => {
   b.addEventListener('mousedown', (e) => handleClick(e));
@@ -16,17 +33,34 @@ buttons.forEach((b) => {
 
 const display = document.querySelector('.display');
 
-function handleMouseUp({ target }) {
-  const element = target.closest('[data-value]');
+function getElement(key) {
+  const node = document.querySelector(`.button[data-value="${key}"]`);
+  return node;
+}
+
+/**
+ * Function receives both event object and Element.
+ * Therefore how to read the value of the argument is defined at the first line.
+ * @param {Element|DOMEvent} arg
+ */
+function handleMouseUp(arg) {
+  arg = arg.target || arg;
+  const element = arg.closest('[data-value]');
   element.classList.remove('clicked');
 }
 
+/**
+ * Takes
+ * @param {DOMEvent} target
+ */
 function handleClick({ target }) {
-  console.log('previousOperation', previousOperation);
   addCSSClass(target);
   resetDisplayFontSize();
   const input = getInput(target);
+  main(input);
+}
 
+function main(input) {
   if (input === 'ac') {
     clearActiveClass();
     reset();
@@ -44,7 +78,6 @@ function handleClick({ target }) {
   }
 
   if (input === '%') {
-    // if (input === '%' && previousInput !== '') {
     handlePercentageInput();
     return;
   }
@@ -71,7 +104,7 @@ function handleClick({ target }) {
     }
   }
 
-  if (input === '=' && operation !== '') {
+  if (input === 'Enter' && operation !== '') {
     clearActiveClass();
     handleEqualInput();
     return;
