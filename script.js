@@ -60,8 +60,9 @@ function handleClick({ target }) {
     //For chain calculating after "=" button was pressed.
     if (num1 !== undefined) {
       operation = input;
-      display.textContent = getDisplayValue(operation, num1);
+      display.textContent = getDisplayValue(num1);
       return;
+      z;
     }
   }
 
@@ -108,7 +109,7 @@ function handlePercentageInput() {
     ? previousInput
     : toNumber(previousInput);
   previousInput = `${calculate(operand1, '*', '0.01')}`;
-  display.textContent = getDisplayValue('', previousInput);
+  display.textContent = getDisplayValue(previousInput);
 }
 
 /**
@@ -168,7 +169,7 @@ function handleOperatorInput(operator) {
   } else {
     num1 = calculate(num1, operator, previousInput);
   }
-  display.textContent = getDisplayValue(operator, num1);
+  display.textContent = getDisplayValue(num1);
   previousInput = '';
   negativeEntry = false;
 }
@@ -271,11 +272,11 @@ function toNumber(string) {
  * @param {Number} operand
  * @returns {String}
  */
-function getDisplayValue(operator, operand) {
-  operator = getDisplayValueOfOperator(operator);
+function getDisplayValue(operand) {
   operand = toExponentialIfRequired(operand);
   operand = insertCommas(`${operand}`);
-  return `${operator} ${operand}`;
+  operand = putMinusIfRequired(`${operand}`);
+  return operand;
 }
 
 /**
@@ -321,6 +322,7 @@ function putMinusIfRequired(string) {
   if (negativeEntry === false) {
     return string.replace('-', '');
   }
+  return string;
 }
 
 /**
