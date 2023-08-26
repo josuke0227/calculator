@@ -23,6 +23,7 @@ function handleMouseUp({ target }) {
 
 function handleClick({ target }) {
   addCSSClass(target);
+  resetDisplayFontSize();
   const input = getInput(target);
 
   if (input === 'ac') {
@@ -95,12 +96,7 @@ function handleClearInput() {
  */
 function handleToggleInput() {
   negativeEntry = !negativeEntry;
-  if (previousInput === '') {
-    // display.textContent = '-0';
-    return;
-  }
-  previousInput = putMinusIfRequired(previousInput);
-  display.textContent = previousInput;
+  display.textContent = putMinusIfRequired(display.textContent);
 }
 
 /**
@@ -125,7 +121,7 @@ function handleNumberInput(input) {
     previousInput = '';
   }
   updatePreviousInput(input);
-  display.textContent = previousInput;
+  display.textContent = putMinusIfRequired(previousInput);
 }
 
 /**
@@ -136,6 +132,9 @@ function handleEqualInput() {
     num1 = calculate(num1, operation, previousInput);
     if (isNaN(num1) || num1 === Infinity) {
       displayErrorMessage();
+      previousInput = '';
+      negativeEntry = false;
+      num1 = undefined;
       return;
     }
   }
@@ -153,6 +152,10 @@ function handleEqualInput() {
 function displayErrorMessage() {
   display.textContent = 'Buy me a coffee☕️';
   display.style.fontSize = '2.5rem';
+}
+
+function resetDisplayFontSize() {
+  display.style.fontSize = '3.3rem';
 }
 
 /**
@@ -293,8 +296,7 @@ function getDisplayValueOfOperator(operator) {
  * @returns {Number}
  */
 function negateNumberIfRequired(num) {
-  return num;
-  // return negativeEntry === true ? -num : num;
+  return negativeEntry === true ? -num : +num;
 }
 
 /**
@@ -303,8 +305,7 @@ function negateNumberIfRequired(num) {
  */
 function updatePreviousInput(newInput) {
   newInput = validateInput(newInput) === true ? newInput : '';
-  let newValue = insertCommas(previousInput + newInput);
-  previousInput = putMinusIfRequired(newValue);
+  previousInput = insertCommas(previousInput + newInput);
 }
 
 /**
@@ -313,8 +314,6 @@ function updatePreviousInput(newInput) {
  * @returns {String}
  */
 function putMinusIfRequired(string) {
-  if (string === '0') return string;
-
   if (negativeEntry === true && !string.startsWith('-')) {
     return `-${string}`;
   }
@@ -322,7 +321,6 @@ function putMinusIfRequired(string) {
   if (negativeEntry === false) {
     return string.replace('-', '');
   }
-  return string;
 }
 
 /**
@@ -397,11 +395,8 @@ function insertCommas(string) {
   if (fraction !== undefined) {
     const fractionNum = fraction === '' ? '.' : `.${fraction}`;
     return prefix + string.join('') + fractionNum;
-    // const result = string.join('') + fractionNum;
-    // return putMinusIfRequired(result);
   }
   return prefix + string.join('');
-  // return putMinusIfRequired(string.join(''));
 }
 
 /**
