@@ -22,6 +22,7 @@ function handleMouseUp({ target }) {
 }
 
 function handleClick({ target }) {
+  console.log('previousOperation', previousOperation);
   addCSSClass(target);
   resetDisplayFontSize();
   const input = getInput(target);
@@ -42,7 +43,8 @@ function handleClick({ target }) {
     return;
   }
 
-  if (input === '%' && previousInput !== '') {
+  if (input === '%') {
+    // if (input === '%' && previousInput !== '') {
     handlePercentageInput();
     return;
   }
@@ -55,6 +57,7 @@ function handleClick({ target }) {
   if (isOperator(input)) {
     clearActiveClass();
     addActiveClass(input);
+    previousOperation = '';
     if (previousInput !== '') {
       operation = input;
       handleOperatorInput(input);
@@ -135,12 +138,17 @@ function handleToggleInput() {
  * Routine process when "%" is entered.
  */
 function handlePercentageInput() {
-  previousOperation = '%';
-  let operand1 = isExponentialForm(previousInput)
-    ? previousInput
-    : toNumber(previousInput);
-  previousInput = `${calculate(operand1, '*', '0.01')}`;
+  let value = previousInput || `${num1}`;
+  let operand1 = isExponentialForm(value) ? value : toNumber(value);
+  const result = calculate(operand1, '*', '0.01');
+  previousInput = `${result}`;
   display.textContent = getDisplayValue(previousInput);
+  // Stop num1 to hav previous result when % is pressed after =
+  if (previousOperation === '=') {
+    num1 = result;
+    previousInput = '';
+  }
+  previousOperation = '%';
 }
 
 /**
@@ -148,9 +156,15 @@ function handlePercentageInput() {
  * @param {String} input
  */
 function handleNumberInput(input) {
+  if (previousOperation === '=') {
+    previousOperation = '';
+    previousInput = '';
+    num1 = undefined;
+  }
   if (previousOperation === '%') {
     previousOperation = '';
     previousInput = '';
+    // num1 = undefined;
   }
   updatePreviousInput(input);
   display.textContent = putMinusIfRequired(previousInput);
@@ -160,6 +174,7 @@ function handleNumberInput(input) {
  * Routine process when "=" is entered.
  */
 function handleEqualInput() {
+  previousOperation = '=';
   if (previousInput !== '') {
     num1 = calculate(num1, operation, previousInput);
     if (isNaN(num1) || num1 === Infinity) {
