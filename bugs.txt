@@ -1,0 +1,38 @@
+when I pressed "+/-" after "=", the display becomes "-0" but,
+internally the calculation value is negated properly.
+  What about updating the following?
+    num1
+    previousInput
+    display.textContent
+
+    what is displayed on the display?
+    is it as same as the num1?
+
+/**
+ * Routine process when "+/-" is entered.
+ */
+function handleToggleInput() {
+  negativeEntry = !negativeEntry;
+  if (previousInput === '') {
+    display.textContent = '-0';
+    return;
+  }
+  previousInput = putMinusIfRequired(previousInput);
+  display.textContent = previousInput;
+}
+
+/**
+ *Puts - when negative operand should be entered.
+ * @param {String} string
+ * @returns {String}
+ */
+function putMinusIfRequired(string) {
+  if (negativeEntry === true && !string.startsWith('-')) {
+    return `-${string}`;
+  }
+
+  if (negativeEntry === false) {
+    return string.replace('-', '');
+  }
+  return string;
+}

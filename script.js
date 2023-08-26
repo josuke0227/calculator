@@ -95,8 +95,9 @@ function handleClearInput() {
  */
 function handleToggleInput() {
   negativeEntry = !negativeEntry;
+  console.log('previousInput', previousInput);
   if (previousInput === '') {
-    display.textContent = '-0';
+    // display.textContent = '-0';
     return;
   }
   previousInput = putMinusIfRequired(previousInput);
@@ -313,6 +314,8 @@ function updatePreviousInput(newInput) {
  * @returns {String}
  */
 function putMinusIfRequired(string) {
+  if (string === '0') return string;
+
   if (negativeEntry === true && !string.startsWith('-')) {
     return `-${string}`;
   }
