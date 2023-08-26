@@ -27,6 +27,8 @@ function handleToggleInput() {
  * @returns {String}
  */
 function putMinusIfRequired(string) {
+  if (string === '0') return string;
+
   if (negativeEntry === true && !string.startsWith('-')) {
     return `-${string}`;
   }
@@ -36,3 +38,7 @@ function putMinusIfRequired(string) {
   }
   return string;
 }
+
+
+- disappears from the result
+-9 + 3 = 6

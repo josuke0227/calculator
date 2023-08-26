@@ -95,7 +95,6 @@ function handleClearInput() {
  */
 function handleToggleInput() {
   negativeEntry = !negativeEntry;
-  console.log('previousInput', previousInput);
   if (previousInput === '') {
     // display.textContent = '-0';
     return;
@@ -309,7 +308,7 @@ function updatePreviousInput(newInput) {
 }
 
 /**
- *Puts - when negative operand should be entered.
+ *Toggles the minus on the previousInput and textContent of the display.
  * @param {String} string
  * @returns {String}
  */
@@ -372,6 +371,7 @@ function extractDigits(string) {
 function insertCommas(string) {
   if (isExponentialForm(string)) return string;
 
+  let prefix = string.charAt(0); // identify if the number is negative number or not.
   let fraction = undefined;
   // Prevents inserting commas for fractional part of the number.
   if (string.includes('.')) {
@@ -391,12 +391,17 @@ function insertCommas(string) {
       actualLength = string.length - comma.length; // Exclude the count of comma inserted.
     }
   }
+
+  prefix = prefix === '-' ? prefix : '';
+
   if (fraction !== undefined) {
     const fractionNum = fraction === '' ? '.' : `.${fraction}`;
-    const result = string.join('') + fractionNum;
-    return putMinusIfRequired(result);
+    return prefix + string.join('') + fractionNum;
+    // const result = string.join('') + fractionNum;
+    // return putMinusIfRequired(result);
   }
-  return putMinusIfRequired(string.join(''));
+  return prefix + string.join('');
+  // return putMinusIfRequired(string.join(''));
 }
 
 /**
