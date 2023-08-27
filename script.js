@@ -33,6 +33,11 @@ buttons.forEach((b) => {
 
 const display = document.querySelector('.display');
 
+/**
+ * Returns the node which is corresponding with the name of the key pressed.
+ * @param {String} key
+ * @returns {Element}
+ */
 function getElement(key) {
   const node = document.querySelector(`.button[data-value="${key}"]`);
   return node;
@@ -60,6 +65,11 @@ function handleClick({ target }) {
   main(input);
 }
 
+/**
+ * Conducts calculation and update results displayed on the "display" element
+ * @param {String} input
+ * @returns
+ */
 function main(input) {
   if (input === 'ac') {
     clearActiveClass();

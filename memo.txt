@@ -1,3 +1,21 @@
+Read key stroke (number)
+Update displayValue
+Read key stroke (operator)
+
+Convert current displayValue into number
+
+Read key stroke (number)
+Update displayValue
+Read key stroke (operator)
+
+Calculate
+
+Convert calculation result into string
+
+Update displayValue
+
+
+
 Requirements
 1. Operations
   add
